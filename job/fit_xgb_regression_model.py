@@ -1,15 +1,45 @@
-# Standard library imports
-from datetime import datetime
-import warnings
-
+"""
+File that contains functions for fitting the project's model
+"""
 # Third-party imports
 import pandas as pd
-import requests
 import xgboost as xgb
 
 
 def fit_xgb_regression_model(df_path,
                              model_save_path):
+    """
+        Train and save an XGBoost regression model for temperature forecast.
+
+        This function loads weather data from a CSV file, performs feature engineering
+        to extract time-based features, creates a model to predict temperature 15 minutes in the future based on
+        hour, month, then saves the trained model.
+
+        Parameters
+        ----------
+        df_path : str
+            Path to the CSV file containing weather data. The file must include 'time'
+            and 'temperature_2m' columns.
+
+        model_save_path : str
+            Path where the trained XGBoost model will be saved.
+
+        Returns
+        -------
+        xgb.XGBRegressor
+            The trained XGBoost regression model.
+
+        Notes
+        -----
+        - The function converts ISO 8601 timestamps to datetime objects
+        - Feature engineering includes:
+          - Extracting time of day as HHMM integer (e.g., 1430 for 2:30 PM)
+          - Extracting hour and month as separate features
+          - Creating a lagged feature for temperature from 15 minutes ago
+        - The model uses only 'hour', 'month', and 'previous_15_min_temp' as features
+        - The target variable is 'temperature_2m'
+        - The model is trained on the entire dataset without train/test splitting
+    """
     # Loading dataset with newest data
     df = pd.read_csv(df_path)
 

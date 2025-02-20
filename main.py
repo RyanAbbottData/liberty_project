@@ -38,12 +38,21 @@ TEMP_LOWER_BOUND = 20
 
 
 def job():
-    print("Grabbing New Data...")
+    """
+        Scheduled job to retrieve weather data, train a model, and forecast temperature.
+
+        This function performs the following operations in sequence:
+        1. Retrieves new 15-minute temperature data from the weather API
+        2. Trains an XGBoost regression model on the updated dataset
+        3. Predicts the temperature for the next 15-minute interval
+        4. Logs a warning if the predicted temperature falls outside defined thresholds
+    """
+    logging.info("Grabbing New Data...")
     # Running the function to get API data every 15 minutes
     new_temp = get_15_minutely_temp(params=WEATHER_PARAMS,
-                         original_data_path=ORIGINAL_WEATHER_DATA_PATH,
-                         newest_data_path=NEWEST_WEATHER_DATA_PATH)
-    print("Ran!")
+                                    original_data_path=ORIGINAL_WEATHER_DATA_PATH,
+                                    newest_data_path=NEWEST_WEATHER_DATA_PATH)
+    logging.info("Ran!")
 
     # fitting new model
     model = fit_xgb_regression_model(df_path=NEWEST_WEATHER_DATA_PATH,
@@ -52,16 +61,16 @@ def job():
     # Making prediction on next temperature in 15 minutes
     next_time = get_next_timestamp(new_temp['time'].iloc[0])
 
-    # features_for_pred = [get_next_timestamp(new_temp['time'].iloc[0]), new_temp['temperature_2m']]
+    # Creating a dataframe to house features for prediction
     df_for_pred = pd.DataFrame()
     df_for_pred['hour'] = [next_time.hour]
     df_for_pred['month'] = [next_time.month]
     df_for_pred['previous_15_min_temp'] = new_temp['temperature_2m']
 
+    # Getting predicted temp for next 15 minutes
     predicted_temp = model.predict(df_for_pred)[0]
 
-    assert type(predicted_temp) == numpy.float32
-
+    # Issuing basic alert if temperature is greater than 100 or less than 20 (arbitrary bounds)
     if predicted_temp < TEMP_LOWER_BOUND or predicted_temp > TEMP_UPPER_BOUND:
         logging.warning(f"forecasted temperature ({round(predicted_temp, 2)}) exceeds or dips below the range "
                         f"({TEMP_LOWER_BOUND}, {TEMP_UPPER_BOUND}). Prepare accordingly!")
@@ -71,5 +80,4 @@ if __name__ == '__main__':
     while True:
         job()
         # Pause execution for 15 minutes, then run again
-        sleep(60*15)
-
+        sleep(60 * 15)
