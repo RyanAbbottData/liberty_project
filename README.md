@@ -29,8 +29,11 @@ liberty-project/
 │   └── utils.py    # A file housing various utility functions
 │
 ├── assets/
-│   |── current_telemetry_data.csv  # CSV containing most recent data. Updated by get_15_minutely_data.py 
-│   └── past_telemetry_data.csv  # CSV containing all past data. Created by get_all_data.py
+|    ├── data/
+│     |── current_telemetry_data.csv  # CSV containing most recent data. Updated by get_15_minutely_data.py 
+│     └── past_telemetry_data.csv  # CSV containing all past data. Created by get_all_data.py
+│    ├── models/
+│     └── weather_model.json  # The regression model used to forecast
 │   
 ├── main.py   # Runs the job, meant to be executed in terminal.
 ├── liberty_project.ipynb   # Notebook where I originally started working on this project. It contains EDA and feature/hyperparameter testing.
