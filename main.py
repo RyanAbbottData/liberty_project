@@ -5,10 +5,9 @@ The main file of the project that will run the pipeline
 from datetime import timedelta
 import warnings
 import logging
+from time import sleep
 
 # Third-party imports
-import schedule
-from schedule import repeat, every, run_pending
 import pandas as pd
 import numpy
 
@@ -38,7 +37,6 @@ TEMP_UPPER_BOUND = 100
 TEMP_LOWER_BOUND = 20
 
 
-@repeat(every(15).minutes)
 def job():
     print("Grabbing New Data...")
     # Running the function to get API data every 15 minutes
@@ -69,11 +67,9 @@ def job():
                         f"({TEMP_LOWER_BOUND}, {TEMP_UPPER_BOUND}). Prepare accordingly!")
 
 
-# Using Python's 'schedule' library to schedule a run every 15 minutes
-schedule.every(15).minutes.do(get_15_minutely_temp)
-
 if __name__ == '__main__':
-    #while True:
-    job()
-        #run_pending()
+    while True:
+        job()
+        # Pause execution for 15 minutes, then run again
+        sleep(60*15)
 
