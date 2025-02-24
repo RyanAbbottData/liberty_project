@@ -52,7 +52,7 @@ def get_15_minutely_temp(params,
 
     all_data.to_csv(newest_data_path, index=False)
 
-    return new_data
+    return all_data.tail(4)
 
 
 

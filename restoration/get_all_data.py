@@ -11,9 +11,10 @@ weather_params = {
     "latitude": 35.49,
     "longitude": -97.96,
     "temperature_unit": "fahrenheit",
-    "minutely_15": "temperature_2m",
-    "forecast_days": 0,
-    "past_days": 92
+    "minutely_15": ["temperature_2m",
+                    "dew_point_2m"],
+    "forecast_minutely_15": 0,
+    "past_minutely_15": 8832
 }
 
 # Making the request and capturing it's response

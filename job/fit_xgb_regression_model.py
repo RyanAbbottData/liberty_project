@@ -55,9 +55,22 @@ def fit_xgb_regression_model(df_path,
 
     # getting the temperature from the previous 15 minutes
     df['previous_15_min_temp'] = df['temperature_2m'].shift(1)
+    df['previous_30_min_temp'] = df['temperature_2m'].shift(2)
+    df['previous_45_min_temp'] = df['temperature_2m'].shift(3)
+    df['previous_1_hour_temp'] = df['temperature_2m'].shift(4)
+    df['previous_15_min_dew_point'] = df['dew_point_2m'].shift(1)
+
+    # Dropping any NaN values
+    df = df.dropna()
 
     # Separating x, y, training and testing data
-    x_cols = ['hour', 'month', 'previous_15_min_temp']
+    x_cols = ['hour',
+              'month',
+              'previous_15_min_temp',
+              'previous_30_min_temp',
+              'previous_45_min_temp',
+              'previous_1_hour_temp',
+              'previous_15_min_dew_point']
     y_col = ['temperature_2m']
 
     x = df[x_cols]

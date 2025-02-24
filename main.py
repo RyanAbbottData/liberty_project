@@ -19,13 +19,17 @@ from utils.utils import get_next_timestamp
 # Ignoring warnings
 warnings.filterwarnings('ignore')
 
+# Configuring logging
+logging.basicConfig(level=logging.INFO)
+
 # Constants
 # Formatting parameters to get only the previous 15 minutes' temperature
 WEATHER_PARAMS = {
     "latitude": 35.49,
     "longitude": -97.96,
     "temperature_unit": "fahrenheit",
-    "minutely_15": "temperature_2m",
+    "minutely_15": ["temperature_2m",
+                    "dew_point_2m"],
     "past_minutely_15": 1,
     "forecast_minutely_15": 0
 
@@ -49,7 +53,7 @@ def job():
     """
     logging.info("Grabbing New Data...")
     # Running the function to get API data every 15 minutes
-    new_temp = get_15_minutely_temp(params=WEATHER_PARAMS,
+    new_temps = get_15_minutely_temp(params=WEATHER_PARAMS,
                                     original_data_path=ORIGINAL_WEATHER_DATA_PATH,
                                     newest_data_path=NEWEST_WEATHER_DATA_PATH)
     logging.info("Ran!")
@@ -59,16 +63,23 @@ def job():
                                      model_save_path=MODEL_SAVE_PATH)
 
     # Making prediction on next temperature in 15 minutes
-    next_time = get_next_timestamp(new_temp['time'].iloc[0])
+    next_time = get_next_timestamp(new_temps['time'].iloc[0])
 
     # Creating a dataframe to house features for prediction
     df_for_pred = pd.DataFrame()
     df_for_pred['hour'] = [next_time.hour]
     df_for_pred['month'] = [next_time.month]
-    df_for_pred['previous_15_min_temp'] = new_temp['temperature_2m']
+    df_for_pred['previous_15_min_temp'] = new_temps['temperature_2m'].iloc[0]
+    df_for_pred['previous_30_min_temp'] = new_temps['temperature_2m'].iloc[1]
+    df_for_pred['previous_45_min_temp'] = new_temps['temperature_2m'].iloc[2]
+    df_for_pred['previous_1_hour_temp'] = new_temps['temperature_2m'].iloc[3]
+    df_for_pred['previous_15_min_dew_point'] = new_temps['dew_point_2m'].iloc[0]
 
     # Getting predicted temp for next 15 minutes
     predicted_temp = model.predict(df_for_pred)[0]
+
+    logging.info(f"Projection Time: {next_time}")
+    logging.info(f"Projected Temperature (F): {predicted_temp}\n")
 
     # Issuing basic alert if temperature is greater than 100 or less than 20 (arbitrary bounds)
     if predicted_temp < TEMP_LOWER_BOUND or predicted_temp > TEMP_UPPER_BOUND:
