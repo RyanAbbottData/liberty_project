@@ -65,15 +65,19 @@ def job():
     # Making prediction on next temperature in 15 minutes
     next_time = get_next_timestamp(new_temps['time'].iloc[0])
 
+    print(new_temps)
+
     # Creating a dataframe to house features for prediction
     df_for_pred = pd.DataFrame()
     df_for_pred['hour'] = [next_time.hour]
     df_for_pred['month'] = [next_time.month]
-    df_for_pred['previous_15_min_temp'] = new_temps['temperature_2m'].iloc[0]
-    df_for_pred['previous_30_min_temp'] = new_temps['temperature_2m'].iloc[1]
-    df_for_pred['previous_45_min_temp'] = new_temps['temperature_2m'].iloc[2]
-    df_for_pred['previous_1_hour_temp'] = new_temps['temperature_2m'].iloc[3]
-    df_for_pred['previous_15_min_dew_point'] = new_temps['dew_point_2m'].iloc[0]
+    df_for_pred['previous_15_min_temp'] = new_temps['temperature_2m'].iloc[3]
+    df_for_pred['previous_30_min_temp'] = new_temps['temperature_2m'].iloc[2]
+    df_for_pred['previous_45_min_temp'] = new_temps['temperature_2m'].iloc[1]
+    df_for_pred['previous_1_hour_temp'] = new_temps['temperature_2m'].iloc[0]
+    df_for_pred['previous_15_min_dew_point'] = new_temps['dew_point_2m'].iloc[3]
+
+    print(df_for_pred)
 
     # Getting predicted temp for next 15 minutes
     predicted_temp = model.predict(df_for_pred)[0]
